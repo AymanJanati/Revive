@@ -10,7 +10,10 @@ const bricolage = Bricolage_Grotesque({
 
 export const metadata: Metadata = {
   title: "Revive",
-  description: "Autonomous AI routing for textile waste valorization"
+  description: "Autonomous AI routing for textile waste valorization",
+  icons: {
+    icon: "/icon.ico"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

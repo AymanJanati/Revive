@@ -2,6 +2,7 @@ import { asApiError, ApiError } from "@/lib/errors/apiError";
 import { error, ok } from "@/lib/serializers/apiSerializer";
 import { serializeAnalysis } from "@/lib/serializers/analysisSerializer";
 import { analysisService } from "@/lib/services/analysisService";
+import { batchRepository } from "@/lib/repositories/batchRepository";
 import type { LaunchAnalysisBody } from "@/types/api";
 
 export async function POST(request: Request) {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
     }
 
     const result = await analysisService.run(body.batchId.trim());
+    batchRepository.setStatus(body.batchId.trim(), "ROUTING_RECOMMENDED");
     return ok(serializeAnalysis(result));
   } catch (e) {
     const apiError = asApiError(e);

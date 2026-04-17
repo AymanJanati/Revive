@@ -9,7 +9,7 @@ export const seededBatches: WasteBatch[] = [
     quantityKg: 180,
     conditionLevel: "MEDIUM",
     contaminationLevel: "LOW",
-    reusePotential: "MEDIUM_HIGH",
+    reusePotential: "HIGH",
     marketDemand: 74,
     warehousePressure: 42,
     intakeDate: "2026-04-17T09:00:00.000Z",
@@ -115,6 +115,37 @@ export const seededBatches: WasteBatch[] = [
         type: "INTAKE_SHEET",
         fileUrl: "/mock/intake-sheet-wl-1180.pdf",
         mimeType: "application/pdf"
+      }
+    ]
+  },
+  {
+    id: "5",
+    batchCode: "CT-9010",
+    sourceLine: "Line A - Cutting",
+    materialType: "COTTON",
+    quantityKg: 50,
+    conditionLevel: "HIGH",
+    contaminationLevel: "LOW",
+    reusePotential: "HIGH",
+    marketDemand: 95,
+    warehousePressure: 20,
+    intakeDate: "2026-04-17T11:30:00.000Z",
+    status: "AWAITING_ANALYSIS",
+    notes: "High purity cotton offcuts. Extremely high resale value, but severe artisan material shortage reported locally.",
+    attachments: [
+      {
+        id: "att-51",
+        name: "Intake Sheet.pdf",
+        type: "INTAKE_SHEET",
+        fileUrl: "/mock/intake-sheet-ct-9010.pdf",
+        mimeType: "application/pdf"
+      },
+      {
+        id: "att-52",
+        name: "Operator Note.txt",
+        type: "OPERATOR_NOTE",
+        fileUrl: "/mock/operator-note-ct-9010.txt",
+        mimeType: "text/plain"
       }
     ]
   }

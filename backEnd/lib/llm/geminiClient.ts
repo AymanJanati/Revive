@@ -10,6 +10,7 @@ type GeminiGenerateContentRequest = {
     topP?: number;
     topK?: number;
     maxOutputTokens?: number;
+    responseMimeType?: string;
   };
 };
 
@@ -57,7 +58,7 @@ export async function geminiGenerateJson<TJson>(prompt: string, opts?: { timeout
     throw new ApiError("INTERNAL_SERVER_ERROR", "Gemini API key is not configured.", 500);
   }
 
-  const timeoutMs = opts?.timeoutMs ?? 3500;
+  const timeoutMs = opts?.timeoutMs ?? 10000;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -72,7 +73,8 @@ export async function geminiGenerateJson<TJson>(prompt: string, opts?: { timeout
         temperature: 0,
         topP: 1,
         topK: 1,
-        maxOutputTokens: 512
+        maxOutputTokens: 8192,
+        responseMimeType: "application/json"
       }
     };
 
@@ -87,9 +89,9 @@ export async function geminiGenerateJson<TJson>(prompt: string, opts?: { timeout
       signal: ctrl.signal
     });
 
-    const json = (await resp.json().catch(() => null)) as GeminiGenerateContentResponse | null;
+    const json = (await resp.json().catch(() => null)) as any | null;
     if (!resp.ok) {
-      // Do not leak upstream details; keep demo-safe.
+      console.error("Gemini API returned !ok response. Status:", resp.status, "Body:", json);
       throw new ApiError("ANALYSIS_FAILED", "Analysis phrasing service returned an error.", 500);
     }
     if (!json) {
@@ -99,7 +101,8 @@ export async function geminiGenerateJson<TJson>(prompt: string, opts?: { timeout
     const text = extractText(json);
     const raw = extractFirstJsonObject(text);
     if (!raw) {
-      throw new ApiError("ANALYSIS_FAILED", "Analysis phrasing service did not return JSON.", 500);
+      console.error("Gemini raw text:", text);
+      throw new ApiError("ANALYSIS_FAILED", `Analysis phrasing service did not return JSON. text: ${text}`, 500);
     }
 
     return JSON.parse(raw) as TJson;

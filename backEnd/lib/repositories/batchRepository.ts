@@ -1,21 +1,31 @@
+import fs from "fs";
+import path from "path";
 import { seededBatches } from "@/lib/seed/batches";
 import type { BatchStatus, WasteBatch, WasteBatchQueueItem } from "@/types/revive";
 
-const baseData = new Map<string, WasteBatch>(seededBatches.map((batch) => [batch.id, deepClone(batch)]));
-const runtimeStatus = new Map<string, BatchStatus>(seededBatches.map((batch) => [batch.id, batch.status]));
+const DB_FILE = path.join(process.cwd(), "dev.db.json");
 
-function deepClone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function withRuntimeStatus(batch: WasteBatch): WasteBatch {
-  const status = runtimeStatus.get(batch.id) ?? batch.status;
-  return { ...batch, status };
+function ensureDb() {
+  if (!fs.existsSync(DB_FILE)) {
+    // Seed initial local DB file
+    fs.writeFileSync(DB_FILE, JSON.stringify(seededBatches, null, 2), "utf8");
+  }
 }
 
 export class BatchRepository {
+  private readDb(): WasteBatch[] {
+    ensureDb();
+    const data = fs.readFileSync(DB_FILE, "utf8");
+    return JSON.parse(data);
+  }
+
+  private writeDb(data: WasteBatch[]): void {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
+  }
+
   listQueueItems(): WasteBatchQueueItem[] {
-    return [...baseData.values()].map(withRuntimeStatus).map((batch) => ({
+    const batches = this.readDb();
+    return batches.map((batch) => ({
       id: batch.id,
       batchCode: batch.batchCode,
       sourceLine: batch.sourceLine,
@@ -27,17 +37,19 @@ export class BatchRepository {
   }
 
   getById(id: string): WasteBatch | null {
-    const found = baseData.get(id);
-    if (!found) return null;
-    return withRuntimeStatus(found);
+    const batches = this.readDb();
+    return batches.find(b => b.id === id) || null;
   }
 
   setStatus(id: string, status: BatchStatus): boolean {
-    if (!baseData.has(id)) return false;
-    runtimeStatus.set(id, status);
+    const batches = this.readDb();
+    const batchIndex = batches.findIndex(b => b.id === id);
+    if (batchIndex === -1) return false;
+    
+    batches[batchIndex].status = status;
+    this.writeDb(batches);
     return true;
   }
 }
 
 export const batchRepository = new BatchRepository();
-
