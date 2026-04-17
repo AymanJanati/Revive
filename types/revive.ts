@@ -106,6 +106,7 @@ export interface FinalDecision {
   impactScore: number; // 0-100
   confidence: ConfidenceLevel;
   nextAction: string;
+  rejectedRoutes: Array<{ route: RoutingOutcome; reason: string }>;
 }
 
 export type QualitativeLevel = "LOW" | "MEDIUM" | "HIGH" | "STRONG";
@@ -115,6 +116,17 @@ export interface ValueSnapshot {
   wasteDivertedKg: number;
   socialReusePotential: "LOW" | "MEDIUM" | "HIGH";
   sustainabilityContribution: QualitativeLevel;
+  urgencyLevel: "IMMEDIATE" | "STANDARD" | "LOW";
+  destinationFitScore: number;
+}
+
+export interface DecisionConflict {
+  valueAgentRecommendation: RoutingOutcome;
+  valueAgentReasoning: string;
+  impactAgentRecommendation: RoutingOutcome;
+  impactAgentReasoning: string;
+  hasConflict: boolean;
+  resolutionRationale: string;
 }
 
 export interface AnalysisResult {
@@ -123,6 +135,7 @@ export interface AnalysisResult {
   completedAt: string; // ISO date string
   batchStatus: BatchStatus;
   timeline: AnalysisTimelineItem[];
+  decisionConflict: DecisionConflict;
   finalDecision: FinalDecision;
   valueSnapshot: ValueSnapshot;
 }

@@ -42,7 +42,7 @@
     "marketDemand": 86,
     "warehousePressure": 58,
     "intakeDate": "2026-04-17T09:25:00.000Z",
-    "status": "AWAITING_ANALYSIS",
+    "status": "ROUTING_RECOMMENDED",
     "notes": "Clean denim offcuts with consistent fiber profile and strong buyer fit.",
     "attachments": [
       {
@@ -73,7 +73,7 @@
     "marketDemand": 28,
     "warehousePressure": 73,
     "intakeDate": "2026-04-17T09:40:00.000Z",
-    "status": "AWAITING_ANALYSIS",
+    "status": "ROUTING_RECOMMENDED",
     "notes": "Mixed textile with visible contamination and inconsistent composition; requires specialized handling.",
     "attachments": [
       {

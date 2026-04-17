@@ -46,6 +46,14 @@ Generate a valid JSON object matching exactly this structure:
     { "agent": "IMPACT_AGENT", "status": "COMPLETED", "message": "...", "reasoning": "...", "output": {} },
     { "agent": "ARBITER_AGENT", "status": "COMPLETED", "message": "...", "reasoning": "...", "output": {} }
   ],
+  "decisionConflict": {
+    "valueAgentRecommendation": "SELL" | "REDIRECT_TO_COOPERATIVE" | "STORE_TEMPORARILY" | "REJECT_SPECIALIZED_TREATMENT",
+    "valueAgentReasoning": "...",
+    "impactAgentRecommendation": "SELL" | "REDIRECT_TO_COOPERATIVE" | "STORE_TEMPORARILY" | "REJECT_SPECIALIZED_TREATMENT",
+    "impactAgentReasoning": "...",
+    "hasConflict": true,
+    "resolutionRationale": "..."
+  },
   "finalDecision": {
     "recommendedDestination": "Name of Buyer or Cooperative",
     "partnerType": "INDUSTRIAL_BUYER" | "COOPERATIVE" | "RECOVERY_UNIT" | "WAREHOUSE",
@@ -54,20 +62,25 @@ Generate a valid JSON object matching exactly this structure:
     "businessScore": 0-100,
     "impactScore": 0-100,
     "confidence": "LOW" | "MEDIUM" | "HIGH",
-    "nextAction": "Action instruction for operator."
+    "nextAction": "Action instruction for operator.",
+    "rejectedRoutes": [
+      { "route": "SELL" | "REDIRECT_TO_COOPERATIVE" | "STORE_TEMPORARILY" | "REJECT_SPECIALIZED_TREATMENT", "reason": "Why this was rejected." }
+    ]
   },
   "valueSnapshot": {
     "recoverableValueEstimate": number,
     "wasteDivertedKg": ${batch.quantityKg},
     "socialReusePotential": "LOW" | "MEDIUM" | "HIGH",
-    "sustainabilityContribution": "LOW" | "MEDIUM" | "HIGH" | "STRONG"
+    "sustainabilityContribution": "LOW" | "MEDIUM" | "HIGH" | "STRONG",
+    "urgencyLevel": "IMMEDIATE" | "STANDARD" | "LOW",
+    "destinationFitScore": 0-100
   }
 }
 
 Constraint: Do not return trailing commas or markdown wrappers. Only pure JSON matching the above interface exactly.
 `;
 
-      const aiResponse = await geminiGenerateJson<any>(prompt, { timeoutMs: 15000 });
+      const aiResponse = await geminiGenerateJson<any>(prompt, { timeoutMs: 45000 });
       
       batchRepository.setStatus(batchId, aiResponse.batchStatus || "ROUTING_RECOMMENDED");
 
@@ -78,6 +91,7 @@ Constraint: Do not return trailing commas or markdown wrappers. Only pure JSON m
         completedAt: completedAt.toISOString(),
         batchStatus: aiResponse.batchStatus || "ROUTING_RECOMMENDED",
         timeline: aiResponse.timeline,
+        decisionConflict: aiResponse.decisionConflict,
         finalDecision: aiResponse.finalDecision,
         valueSnapshot: aiResponse.valueSnapshot
       };
